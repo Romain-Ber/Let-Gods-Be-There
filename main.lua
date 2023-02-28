@@ -1,12 +1,12 @@
 io.stdout:setvbuf('no')
 --Empèche love de filtrer les contours de l'image quand elle est redimensionnées (pixel art)
 love.graphics.setDefaultFilter("nearest")
------VARIABLES-----
-fullScreen = true
 
------REQUIRES-----
+fullScreen = false
+
+
 local Engine = require("engine")
------LOAD----- : ACTION DU JEU AU DEMARAGE
+
 function love.load()
     if (fullScreen) then
         love.window.setFullscreen(true)
@@ -14,12 +14,13 @@ function love.load()
         scale_x = screenWidth / 800
         scale_y = screenHeight / 600
     end
+    Engine.load()
 end
 
 function love.update(dt)
-
+    Engine.update(dt)
 end
 
 function love.draw()
-    
+    Engine.draw()
 end
