@@ -5,13 +5,11 @@ local introVideoPlayed = false
 local introSoundPlayed = false
 local introSound2Played = false
 
-local alpha = 1
-local alphaIntroPlayKey = 0
 
 local function loadAssets()
     introVideo = love.graphics.newVideo("intro/introVideo.ogv")
+    alphaFade = 1
     introSound = love.audio.newSource("intro/introSound.mp3", "stream")
-    --introSound2 = love.audio.newSource("intro/introSound2.mp3", "stream")
     introSound2 = {
         sound = love.audio.newSource("intro/desert-stone-109342.mp3", "stream"),
         start = 9.5
@@ -20,12 +18,12 @@ local function loadAssets()
         image = love.graphics.newImage("intro/Origin Games.png"),
         start = 7.1,
         alpha = 0,
-        alphaSpeed = 4
+        alphaSpeed = 1
     }
     introBackground = {
         image1 = love.graphics.newImage("intro/heaven.png"),
         image2 = love.graphics.newImage("intro/hell.png"),
-        start = 12.25,
+        start = 13.5,
         alpha = 0,
         alphaSpeed = 0.1
     }
@@ -34,6 +32,12 @@ local function loadAssets()
         start = 14.6,
         alpha = 0,
         alphaSpeed = 1
+    }
+    introPressKey = {
+        image = love.graphics.newImage("intro/presskey2.png"),
+        start = 17.5,
+        alpha = 0,
+        alphaSpeed = 0.75
     }
 end
 
@@ -49,20 +53,20 @@ local function updateTimer(dt)
             introLogo.alpha = 1
         end
     end
-    if introTimer >= 9.6 and introTimer < 12 then
-        alpha = alpha - 2 * dt
+    if introTimer >= 9 and introTimer < 12 then
+        alphaFade = alphaFade - introLogo.alphaSpeed * dt
         introLogo.alpha = introLogo.alpha - introLogo.alphaSpeed * dt
-        if alpha <= 0 then
-            alpha = 0
+        if alphaFade <= 0 then
+            alphaFade = 0
         end
         if introLogo.alpha <= 0 then
             introLogo.alpha = 0
         end        
     end
     if introTimer >= 12 then
-        alpha = alpha + 0.2 * dt
-        if alpha >= 1 then
-            alpha = 1
+        alphaFade = alphaFade + 0.2 * dt
+        if alphaFade >= 1 then
+            alphaFade = 1
         end
     end
     if introTimer >= introBackground.start then
@@ -78,10 +82,10 @@ local function updateTimer(dt)
             introGameLogo.alpha = 1
         end
     end
-    if introTimer >= 14 then
-        alphaIntroPlayKey = alphaIntroPlayKey + 1 * dt
-        if alphaIntroPlayKey >= 1 then
-            alphaIntroPlayKey = 1
+    if introTimer >= introPressKey.start then
+        introPressKey.alpha = introPressKey.alpha + introPressKey.alphaSpeed * dt
+        if introPressKey.alpha >= 1 then
+            introPressKey.alpha = 1
         end
     end
 end
@@ -115,7 +119,7 @@ local function playIntro()
         introVideo:pause()
     end
     if introTimer >= 11 and introTimer < 12 then
-        love.graphics.setColor(1, 1, 1, alpha)
+        love.graphics.setColor(1, 1, 1, alphaFade)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
     end
     if introTimer >= introBackground.start then
@@ -127,11 +131,15 @@ local function playIntro()
         love.graphics.setColor(1, 1, 1, introGameLogo.alpha)
         love.graphics.draw(introGameLogo.image, 560, 187)
     end
+    if introTimer >= introPressKey.start then
+        love.graphics.setColor(1, 1, 1, introPressKey.alpha)
+        love.graphics.draw(introPressKey.image, 760, 745, 0, 0.2, 0.2)
+    end
 end
 
 
 intro.draw = function (x,y)
-    love.graphics.setColor(1, 1, 1, alpha)
+    love.graphics.setColor(1, 1, 1, alphaFade)
     playIntro()
 end
 
