@@ -40,7 +40,7 @@ end
 
 settings.keypressed = function(key)
     if key == "f11" then
-        changeScreenMode()
+        --changeScreenMode()
     end
 end
 

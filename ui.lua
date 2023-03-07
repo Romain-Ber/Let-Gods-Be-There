@@ -28,12 +28,12 @@ ui.update = function(dt)
 
 end
 
-ui.draw = function(x,y)
-    love.graphics.draw(imgBackgroundBorder, CONST.backgroundBorder.quad, x, y)
+ui.draw = function()
+    love.graphics.draw(imgBackgroundBorder, CONST.backgroundBorder.quad, 0, 0)
     for i=1, 4, 1 do
-        love.graphics.draw(imgPortraitBorder, CONST.portraitBorder[i].quad, (i-1)*CONST.portraitBorder.w + x, CONST.backgroundBorder.h + 1 + y)
+        love.graphics.draw(imgPortraitBorder, CONST.portraitBorder[i].quad, (i-1)*CONST.portraitBorder.w + 0, CONST.backgroundBorder.h + 1 + 0)
     end
-    love.graphics.draw(imgDiceBorder, CONST.diceBorder.quad, CONST.portraitBorder.w*4 + 1 + x, CONST.backgroundBorder.h + 1 + y)
+    love.graphics.draw(imgDiceBorder, CONST.diceBorder.quad, CONST.portraitBorder.w*4 + 1 + 0, CONST.backgroundBorder.h + 1 + 0)
 end
 
 return ui

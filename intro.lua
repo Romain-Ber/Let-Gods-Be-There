@@ -1,15 +1,19 @@
 local intro = {}
 
+local Menu = require("menu")
+
 local introTimer = 0
 local introVideoPlayed = false
 local introSoundPlayed = false
 local introSound2Played = false
+local introFinished = false
 
 
 local function loadAssets()
     introVideo = love.graphics.newVideo("intro/introVideo.ogv")
-    alphaFade = 1
+    alphaFade = 0
     introSound = love.audio.newSource("intro/introSound.mp3", "stream")
+    introSound:setVolume(0.3)
     introSound2 = {
         sound = love.audio.newSource("intro/desert-stone-109342.mp3", "stream"),
         start = 9.5
@@ -22,27 +26,37 @@ local function loadAssets()
     }
     introBackground = {
         image1 = love.graphics.newImage("intro/heaven.png"),
-        image2 = love.graphics.newImage("intro/hell.png"),
+        image2 = love.graphics.newImage("intro/hell2.png"),
         start = 13.5,
         alpha = 0,
         alphaSpeed = 0.1
     }
     introGameLogo = {
         image = love.graphics.newImage("intro/GameLogo.png"),
-        start = 14.6,
+        start = 14.55,
         alpha = 0,
         alphaSpeed = 1
     }
     introPressKey = {
         image = love.graphics.newImage("intro/presskey2.png"),
-        start = 17.5,
+        w = 2000,
+        h = 400,
+        start = 17.6,
         alpha = 0,
-        alphaSpeed = 0.75
+        alphaSpeed = 0.75,
+        shiftX = 958,
+        shiftY = 623,
+        scale = 0.2,
+        maxCycle = 215,
+        cycle1 = 215,
+        cycle2 = 215,
+        fullCycle = false
     }
 end
 
 intro.load = function()
     loadAssets()
+    Menu.load()
 end
 
 local function updateTimer(dt)
@@ -51,6 +65,12 @@ local function updateTimer(dt)
         introLogo.alpha = introLogo.alpha + introLogo.alphaSpeed * dt
         if introLogo.alpha >= 1 then
             introLogo.alpha = 1
+        end
+    end
+    if introTimer >= 1 and introTimer < 2 then
+        alphaFade = alphaFade + 10 * dt
+        if alphaFade >= 1 then
+            alphaFade = 1
         end
     end
     if introTimer >= 9 and introTimer < 12 then
@@ -87,11 +107,28 @@ local function updateTimer(dt)
         if introPressKey.alpha >= 1 then
             introPressKey.alpha = 1
         end
+        if introPressKey.cycle1 >= 1 and introPressKey.fullCycle == false then
+            introPressKey.scale = introPressKey.scale + 0.0125 * dt
+            introPressKey.cycle1 = introPressKey.cycle1 - 1
+        elseif introPressKey.cycle1 < 1 and introPressKey.fullCycle == false then
+            introPressKey.cycle1 = introPressKey.maxCycle
+            introPressKey.fullCycle = true
+        elseif introPressKey.cycle2 >= 1 and introPressKey.fullCycle == true then
+            introPressKey.scale = introPressKey.scale - 0.0125 * dt
+            introPressKey.cycle2 = introPressKey.cycle2 - 1
+        elseif introPressKey.cycle2 < 1 and introPressKey.fullCycle == true then
+            introPressKey.cycle2 = introPressKey.maxCycle
+            introPressKey.fullCycle = false
+        end
     end
 end
 
 intro.update = function(dt)
-    updateTimer(dt)
+    if introFinished == false then
+        updateTimer(dt)
+    else
+        Menu.update(dt)
+    end
 end
 
 local function playIntro()
@@ -103,7 +140,12 @@ local function playIntro()
         introVideoPlayed = true
         introVideo:play()
     end
-    if introTimer >= 1 and introTimer < 12 then
+    if introTimer >= 1 and introTimer < 2 then
+        love.graphics.setColor(1, 1, 1, alphaFade)
+        love.graphics.draw(introVideo)
+    end
+    if introTimer >= 2 and introTimer < 12 then
+        love.graphics.setColor(1, 1, 1, alphaFade)
         love.graphics.draw(introVideo)
     end
     --love.graphics.draw(introVideo)
@@ -133,14 +175,29 @@ local function playIntro()
     end
     if introTimer >= introPressKey.start then
         love.graphics.setColor(1, 1, 1, introPressKey.alpha)
-        love.graphics.draw(introPressKey.image, 760, 745, 0, 0.2, 0.2)
+        love.graphics.draw(introPressKey.image, introPressKey.shiftX - (introPressKey.w * introPressKey.scale) / 2, introPressKey.shiftY - (introPressKey.h * introPressKey.scale) / 2, 0, introPressKey.scale, introPressKey.scale)
     end
 end
 
 
-intro.draw = function (x,y)
-    love.graphics.setColor(1, 1, 1, alphaFade)
-    playIntro()
+intro.draw = function ()
+    if introFinished == false then
+        playIntro()
+    else
+        Menu.draw()
+    end
+end
+
+intro.keypressed = function(key)
+    if introFinished == false then
+        if (key) then
+            if introTimer >= introPressKey.start then
+                introFinished = true
+            end
+        end
+    else
+        Menu.keypressed()
+    end
 end
 
 return intro

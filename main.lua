@@ -4,29 +4,28 @@ love.graphics.setDefaultFilter("nearest")
 
 local Intro = require("intro")
 local Settings = require("settings")
-local Menu = require("menu")
-
 
 function love.load()
     Settings.load()
     Intro.load()
-    Menu.load()
 end
 
 function love.update(dt)
     Intro.update(dt)
     Settings.update(dt)
-    Menu.update(dt)
 end
 
 function love.draw()
-    Intro.draw(gamescreen.offsetX, gamescreen.offsetY)
+    Intro.draw()
     love.graphics.scale(gamescreen.scale,gamescreen.scale)
     Settings.draw()
-    Menu.draw(gamescreen.offsetX, gamescreen.offsetY)
 end
 
 function love.keypressed(key)
-    Settings.keypressed(key)
-    Menu.keypressed(key)
+    --Settings.keypressed(key)
+    Intro.keypressed(key)
+end
+
+function love.mousepressed(x, y, key)
+
 end
