@@ -6,7 +6,12 @@ local introTimer = 0
 local introVideoPlayed = false
 local introSoundPlayed = false
 local introSound2Played = false
-local introFinished = false
+local introExit = false
+local introToMenu = false
+local zoomScale = 1
+local zoomTranslateX = 0
+local zoomTranslateY = 0
+local zoomTimer = 0
 
 
 local function loadAssets()
@@ -26,31 +31,32 @@ local function loadAssets()
     }
     introBackground = {
         image1 = love.graphics.newImage("intro/heaven.png"),
-        image2 = love.graphics.newImage("intro/hell2.png"),
+        image2 = love.graphics.newImage("intro/hell.png"),
         start = 13.5,
         alpha = 0,
         alphaSpeed = 0.1
     }
     introGameLogo = {
         image = love.graphics.newImage("intro/GameLogo.png"),
-        start = 14.55,
+        start = 14.58,
         alpha = 0,
         alphaSpeed = 1
     }
     introPressKey = {
-        image = love.graphics.newImage("intro/presskey2.png"),
-        w = 2000,
-        h = 400,
-        start = 17.6,
+        image = love.graphics.newImage("intro/presskey.png"),
+        sound = love.audio.newSource("intro/presskey.mp3", "stream"),
+        w = 600,
+        h = 102,
+        start = 17.67,
         alpha = 0,
         alphaSpeed = 0.75,
-        shiftX = 958,
-        shiftY = 623,
-        scale = 0.2,
+        shiftX = 960,
+        shiftY = 607,
+        scale = 1,
         maxCycle = 215,
         cycle1 = 215,
         cycle2 = 215,
-        fullCycle = false
+        fullCycle = false,
     }
 end
 
@@ -123,10 +129,36 @@ local function updateTimer(dt)
     end
 end
 
+local function introAlphaExit(dt)
+    introBackground.alpha = introBackground.alpha - introBackground.alpha * 2 * dt
+    if introBackground.alpha <= 0.02 then
+        introBackground.alpha = 0
+    end
+    introPressKey.alpha = introPressKey.alpha - introPressKey.alpha * 10 * dt
+    if introPressKey.alpha <= 0.02 then
+        introPressKey.alpha = 0
+    end
+    introGameLogo.alpha = introGameLogo.alpha - introGameLogo.alpha * 2 * dt
+    if introGameLogo.alpha <= 0.02 then
+        introGameLogo.alpha = 0
+        introToMenu = true
+    end
+end
+
+local function introZoomExit(dt)
+    zoomScale = zoomScale * 1.01
+    zoomTranslateX = love.graphics.getWidth() / 2 - love.graphics.getWidth() / 2 * zoomScale
+    zoomTranslateY = love.graphics.getHeight() / 2 - love.graphics.getHeight() / 2 * zoomScale - 1
+    zoomTimer = zoomTimer + dt
+end
+
 intro.update = function(dt)
-    if introFinished == false then
+    if introExit == false then
         updateTimer(dt)
-    else
+    elseif introExit == true and introToMenu == false then
+        introZoomExit(dt)
+        introAlphaExit(dt)
+    else --if introExit == true and introToMenu == true then
         Menu.update(dt)
     end
 end
@@ -148,7 +180,6 @@ local function playIntro()
         love.graphics.setColor(1, 1, 1, alphaFade)
         love.graphics.draw(introVideo)
     end
-    --love.graphics.draw(introVideo)
     if introTimer >= introLogo.start and introTimer < 12 then
         love.graphics.setColor(1, 1, 1, introLogo.alpha)
         love.graphics.draw(introLogo.image, 545, 750)
@@ -179,20 +210,41 @@ local function playIntro()
     end
 end
 
+local function drawIntroToMenu()
+    love.graphics.push()
+    love.graphics.translate(zoomTranslateX, zoomTranslateY)
+    love.graphics.scale(zoomScale)
+    love.graphics.setColor(1, 1, 1, introBackground.alpha)
+    love.graphics.draw(introBackground.image1, 448, 0)
+    love.graphics.draw(introBackground.image2, 448, 568)
+    love.graphics.setColor(1, 1, 1, introGameLogo.alpha)
+    love.graphics.draw(introGameLogo.image, 560, 187)
+    love.graphics.setColor(1, 1, 1, introPressKey.alpha)
+    love.graphics.draw(introPressKey.image, introPressKey.shiftX - (introPressKey.w * introPressKey.scale) / 2, introPressKey.shiftY - (introPressKey.h * introPressKey.scale) / 2)
+    love.graphics.pop()
+end
+
 
 intro.draw = function ()
-    if introFinished == false then
+    if introExit == false then
         playIntro()
-    else
+    elseif introExit == true and introToMenu == false then
+        --love.graphics.push()
+        --love.graphics.translate(zoomTranslateX, zoomTranslateY)
+        --love.graphics.scale(zoomScale)
+        drawIntroToMenu()
+        --love.graphics.pop()
+    else --if introExit == true and introToMenu == true then
         Menu.draw()
     end
 end
 
 intro.keypressed = function(key)
-    if introFinished == false then
+    if introExit == false then
         if (key) then
             if introTimer >= introPressKey.start then
-                introFinished = true
+                introExit = true
+                love.audio.play(introPressKey.sound)
             end
         end
     else

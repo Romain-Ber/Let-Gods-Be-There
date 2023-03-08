@@ -4,42 +4,137 @@ local Engine = require("engine")
 
 local menuTimer = 0
 
+local function loadAssets()
+    menuIntroSound = love.audio.newSource("menu/menuIntroSound.mp3", "stream")
+    menuIntroSound:setVolume(4)
+    menuContinue = {
+        button = {
+            image = love.graphics.newImage("menu/continueButton.png"),
+            w = 1024,
+            h = 264,
+            x = 1,
+            y = 1,
+            scale = 1,
+            alpha = 1,
+            alphaSpeed = 1,
+            start = 1
+        },
+        text = {
+            image = love.graphics.newImage("menu/continueText.png"),
+            w = 600,
+            h = 164,
+            x = 1,
+            y = 1,
+            scale = 1,
+            alpha = 1,
+            alphaSpeed = 1,
+            start = 1
+        }
+    }
+    menuNewgame = {
+        button = {
+            image = love.graphics.newImage("menu/newgameButton.png"),
+            w = 1024,
+            h = 264,
+            x = 1,
+            y = 1,
+            scale = 1,
+            alpha = 1,
+            alphaSpeed = 1,
+            start = 1
+        },
+        text = {
+            image = love.graphics.newImage("menu/newgameText.png"),
+            w = 600,
+            h = 155,
+            x = 1,
+            y = 1,
+            scale = 1,
+            alpha = 1,
+            alphaSpeed = 1,
+            start = 1
+       }
+    }
+    menuLoadgame = {
+        button = {
+            image = love.graphics.newImage("menu/loadgameButton.png"),
+            w = 1024,
+            h = 264,
+            x = 1,
+            y = 1,
+            scale = 1,
+            alpha = 1,
+            alphaSpeed = 1,
+            start = 1
+        },
+        text = {
+            image = love.graphics.newImage("menu/loadgameText.png"),
+            w = 600,
+            h = 163,
+            x = 1,
+            y = 1,
+            scale = 1,
+            alpha = 1,
+            alphaSpeed = 1,
+            start = 1
+        }
+    }
+    menuSettings = {
+        button = {
+            image = love.graphics.newImage("menu/settingsButton.png"),
+            w = 1024,
+            h = 264,
+            x = 1,
+            y = 1,
+            scale = 1,
+            alpha = 1,
+            alphaSpeed = 1,
+            start = 1
+        },
+        text = {
+            image = love.graphics.newImage("menu/settingsText.png"),
+            w = 569,
+            h = 173,
+            x = 1,
+            y = 1,
+            scale = 1,
+            alpha = 1,
+            alphaSpeed = 1,
+            start = 1
+        }
+    }
+end
+
 menu.load = function()
+    loadAssets()
     --Engine.load()
 end
 
-local function updateBackgroundAlpha(dt)
-    local minAlpha = math.min(introBackground.alpha, introGameLogo.alpha)
-    introBackground.alpha = introBackground.alpha - introBackground.alpha * 0.5 * dt
-    if introBackground.alpha <= 0.25 then
-        introBackground.alpha = 0.25
-    end
-    introGameLogo.alpha = introGameLogo.alpha - introGameLogo.alpha * dt
-    if introGameLogo.alpha <= 0.25 then
-        introGameLogo.alpha = 0.25
-    end
+
+local function menuLeftSlide(dt)
+
+end
+
+local function menuRightSlide(dt)
+
+end
+
+local function menuFade(dt)
+
 end
 
 menu.update = function(dt)
-    updateBackgroundAlpha(dt)
+    menuTimer = menuTimer + dt
     --Engine.update(dt)
 end
 
-local function backgroundFade()
-    love.graphics.setColor(1, 1, 1, introBackground.alpha)
-    love.graphics.draw(introBackground.image1, 448, 0)
-    love.graphics.draw(introBackground.image2, 448, 568)
-    love.graphics.setColor(1, 1, 1, introGameLogo.alpha)
-    love.graphics.draw(introGameLogo.image, 560, 187)
-end
-
 menu.draw = function(x,y)
-    backgroundFade()
+    love.audio.play(menuIntroSound)
     --Engine.draw(x,y)
 end
 
 menu.keypressed = function(key)
-    
+    if (key) then love.audio.play(menuIntroSound) end
 end
 
 return menu
