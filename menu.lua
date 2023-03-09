@@ -107,7 +107,7 @@ end
 
 menu.load = function()
     loadAssets()
-    --Engine.load()
+    Engine.load()
 end
 
 
@@ -125,16 +125,18 @@ end
 
 menu.update = function(dt)
     menuTimer = menuTimer + dt
-    --Engine.update(dt)
+    Engine.update(dt)
 end
 
-menu.draw = function(x,y)
-    love.audio.play(menuIntroSound)
-    --Engine.draw(x,y)
+menu.draw = function()
+    Engine.draw()
 end
 
 menu.keypressed = function(key)
-    if (key) then love.audio.play(menuIntroSound) end
+    if (key) then
+        love.audio.play(menuIntroSound)
+        print(gamescreen.scale, gamescreen.offsetX, gamescreen.offsetY)
+    end
 end
 
 return menu

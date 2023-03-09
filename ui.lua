@@ -25,10 +25,11 @@ ui.load = function()
 end
 
 ui.update = function(dt)
-
+    
 end
 
 ui.draw = function()
+    love.graphics.setColor(1,1,1,1)
     love.graphics.draw(imgBackgroundBorder, CONST.backgroundBorder.quad, 0, 0)
     for i=1, 4, 1 do
         love.graphics.draw(imgPortraitBorder, CONST.portraitBorder[i].quad, (i-1)*CONST.portraitBorder.w + 0, CONST.backgroundBorder.h + 1 + 0)

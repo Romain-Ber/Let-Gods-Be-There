@@ -17,12 +17,11 @@ end
 
 function love.draw()
     Intro.draw()
-    love.graphics.scale(gamescreen.scale,gamescreen.scale)
     Settings.draw()
 end
 
 function love.keypressed(key)
-    --Settings.keypressed(key)
+    Settings.keypressed(key)
     Intro.keypressed(key)
 end
 

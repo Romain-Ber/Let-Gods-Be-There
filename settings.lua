@@ -40,7 +40,8 @@ end
 
 settings.keypressed = function(key)
     if key == "f11" then
-        --changeScreenMode()
+        changeScreenMode()
+        print(gamescreen.scale, gamescreen.offsetX, gamescreen.offsetY)
     end
 end
 
