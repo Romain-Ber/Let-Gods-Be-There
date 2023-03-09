@@ -1,6 +1,5 @@
 io.stdout:setvbuf('no')
 --Empèche love de filtrer les contours de l'image quand elle est redimensionnées (pixel art)
-love.graphics.setDefaultFilter("linear")
 
 local Intro = require("intro")
 local Settings = require("settings")
@@ -11,13 +10,13 @@ function love.load()
 end
 
 function love.update(dt)
-    Intro.update(dt)
     Settings.update(dt)
+    Intro.update(dt)
 end
 
 function love.draw()
-    Intro.draw()
     Settings.draw()
+    Intro.draw()
 end
 
 function love.keypressed(key)

@@ -15,7 +15,11 @@ local zoomTimer = 0
 
 
 local function loadAssets()
-    introVideo = love.graphics.newVideo("intro/introVideo.ogv")
+    introVideo = {
+        video = love.graphics.newVideo("intro/introVideo.ogv")
+    }
+    introVideo.w = introVideo.video:getWidth()
+    introVideo.h = introVideo.video:getHeight()
     alphaFade = 0
     introSound = love.audio.newSource("intro/introSound.mp3", "stream")
     introSound:setVolume(0.3)
@@ -29,6 +33,8 @@ local function loadAssets()
         alpha = 0,
         alphaSpeed = 1
     }
+    introLogo.w = introLogo.image:getWidth()
+    introLogo.h = introLogo.image:getHeight()
     introBackground = {
         image1 = love.graphics.newImage("intro/heaven.png"),
         image2 = love.graphics.newImage("intro/hell.png"),
@@ -36,17 +42,21 @@ local function loadAssets()
         alpha = 0,
         alphaSpeed = 0.1
     }
+    introBackground.w1 = introBackground.image1:getWidth()
+    introBackground.h1 = introBackground.image1:getHeight()
+    introBackground.w2 = introBackground.image2:getWidth()
+    introBackground.h2 = introBackground.image2:getHeight()
     introGameLogo = {
         image = love.graphics.newImage("intro/GameLogo.png"),
         start = 14.58,
         alpha = 0,
         alphaSpeed = 1
     }
+    introGameLogo.w = introGameLogo.image:getWidth()
+    introGameLogo.h = introGameLogo.image:getHeight()
     introPressKey = {
         image = love.graphics.newImage("intro/presskey.png"),
         sound = love.audio.newSource("intro/presskey.mp3", "stream"),
-        w = 600,
-        h = 102,
         start = 17.67,
         alpha = 0,
         alphaSpeed = 0.75,
@@ -58,6 +68,8 @@ local function loadAssets()
         cycle2 = 215,
         fullCycle = false,
     }
+    introPressKey.w = introPressKey.image:getWidth()
+    introPressKey.h = introPressKey.image:getHeight()
 end
 
 intro.load = function()
@@ -65,7 +77,7 @@ intro.load = function()
     Menu.load()
 end
 
-local function updateTimer(dt)
+local function updateIntro(dt)
     introTimer = introTimer + dt
     if introTimer >= introLogo.start and introTimer < 8 then
         introLogo.alpha = introLogo.alpha + introLogo.alphaSpeed * dt
@@ -129,7 +141,7 @@ local function updateTimer(dt)
     end
 end
 
-local function introAlphaExit(dt)
+local function updateAlphaExit(dt)
     introBackground.alpha = introBackground.alpha - introBackground.alpha * 2 * dt
     if introBackground.alpha <= 0.02 then
         introBackground.alpha = 0
@@ -145,40 +157,40 @@ local function introAlphaExit(dt)
     end
 end
 
-local function introZoomExit(dt)
-    zoomScale = zoomScale * 1.01
+local function updateZoomExit(dt)
+    zoomScale = zoomScale * (1 + 1.5 * dt)
     zoomTranslateX = love.graphics.getWidth() / 2 - love.graphics.getWidth() / 2 * zoomScale
-    zoomTranslateY = love.graphics.getHeight() / 2 - love.graphics.getHeight() / 2 * zoomScale - 1
+    zoomTranslateY = love.graphics.getHeight() / 2 - love.graphics.getHeight() / 2 * zoomScale
     zoomTimer = zoomTimer + dt
 end
 
 intro.update = function(dt)
     if introExit == false then
-        updateTimer(dt)
+        updateIntro(dt)
     elseif introExit == true and introToMenu == false then
-        introZoomExit(dt)
-        introAlphaExit(dt)
+        updateZoomExit(dt)
+        updateAlphaExit(dt)
     else --if introExit == true and introToMenu == true then
         Menu.update(dt)
     end
 end
 
-local function playIntro()
+local function drawIntro()
     if introSoundPlayed == false then
         introSoundPlayed = true
         love.audio.play(introSound)
     end
     if introTimer >= 1 and introVideoPlayed == false then
         introVideoPlayed = true
-        introVideo:play()
+        introVideo.video:play()
     end
     if introTimer >= 1 and introTimer < 2 then
         love.graphics.setColor(1, 1, 1, alphaFade)
-        love.graphics.draw(introVideo)
+        love.graphics.draw(introVideo.video)
     end
     if introTimer >= 2 and introTimer < 12 then
         love.graphics.setColor(1, 1, 1, alphaFade)
-        love.graphics.draw(introVideo)
+        love.graphics.draw(introVideo.video)
     end
     if introTimer >= introLogo.start and introTimer < 12 then
         love.graphics.setColor(1, 1, 1, introLogo.alpha)
@@ -188,8 +200,8 @@ local function playIntro()
     if introTimer >= introSound2.start and introSound2Played == false then
         introSound2Played = true
         love.audio.play(introSound2.sound)
-        introVideo:seek(0)
-        introVideo:pause()
+        introVideo.video:seek(0)
+        introVideo.video:pause()
     end
     if introTimer >= 11 and introTimer < 12 then
         love.graphics.setColor(1, 1, 1, alphaFade)
@@ -227,13 +239,9 @@ end
 
 intro.draw = function ()
     if introExit == false then
-        playIntro()
+        drawIntro()
     elseif introExit == true and introToMenu == false then
-        --love.graphics.push()
-        --love.graphics.translate(zoomTranslateX, zoomTranslateY)
-        --love.graphics.scale(zoomScale)
         drawIntroToMenu()
-        --love.graphics.pop()
     else --if introExit == true and introToMenu == true then
         Menu.draw()
     end
