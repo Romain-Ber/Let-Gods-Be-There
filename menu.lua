@@ -6,17 +6,18 @@ local menuTimer = 0
 
 local zoomTranslateX = 0
 local zoomTranslateY = 0
-local menuScaleDone = false
-local menuSlideDone = false
 local menuLoaded = false
+local slideOffsetVector1 = 0
+local slideOffsetVector2 = 1
 
 local function loadAssets()
     menuIntroSound = love.audio.newSource("menu/menuIntroSound.mp3", "stream")
     menuIntroSound:setVolume(4)
     menuBackground = {
-        image = love.graphics.newImage("menu/menuBackground.png"),
-        scale = 16,
+        image = love.graphics.newImage("menu/menuBackground2.png"),
+        scale = 25,
         alpha = 0.01,
+        alphaMax = 0.5,
         alphaDone = false
     }
     menuBackground.w = menuBackground.image:getWidth()
@@ -43,6 +44,7 @@ local function loadAssets()
     }
     menuContinue.button.w = menuContinue.button.image:getWidth()
     menuContinue.button.h = menuContinue.button.image:getHeight()
+    menuContinue.button.y = maxResolution.h / 9
     menuContinue.text.w = menuContinue.text.image:getWidth()
     menuContinue.text.h = menuContinue.text.image:getHeight()
     menuNewgame = {
@@ -117,8 +119,6 @@ local function loadAssets()
     menuSettings.button.h = menuSettings.button.image:getHeight()
     menuSettings.text.w = menuSettings.text.image:getWidth()
     menuSettings.text.h = menuSettings.text.image:getHeight()
-
-
 end
 
 menu.load = function()
@@ -135,15 +135,17 @@ end
 
 local function updateAlphaEnter(dt)
     menuBackground.alpha = menuBackground.alpha + menuBackground.alpha * 1 * dt
-    if menuBackground.alpha >= 0.25 then
-        menuBackground.alpha = 0.25
+    if menuBackground.alpha >= menuBackground.alphaMax then
+        menuBackground.alpha = menuBackground.alphaMax
         menuBackground.alphaDone = true
     end
 end
 
-local function buttonSlideLeft(dt,img)
-    local startingButtonX = 0
-
+local function buttonSlideLeft(dt)
+    slideOffsetVector1 = 1 + (slideOffsetVector1 - 1) * math.pow(0.1, dt)
+    print(slideOffsetVector1)
+    slideOffsetVector2 = 1 + (slideOffsetVector2 - 1) * math.pow(0.1, dt)
+    print(slideOffsetVector2)
 end
 
 local function buttonSlideRight(dt)
@@ -154,9 +156,9 @@ menu.update = function(dt)
     menuTimer = menuTimer + dt
     updateZoomEnter(dt)
     updateAlphaEnter(dt)
-    if menuTimer >= 3.5 then
-        buttonSlideLeft()
-        buttonSlideRight()
+    if menuTimer >= 2 then
+        buttonSlideLeft(dt)
+        buttonSlideRight(dt)
     end
     --Engine.update(dt)
 end
@@ -171,13 +173,15 @@ local function drawMenuIntro()
 end
 
 local function drawButton()
-
+    love.graphics.scale(1)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(menuContinue.button.image, menuContinue.button.x, menuContinue.button.y, 0, 1, 1)
 end
 
 menu.draw = function()
     drawMenuIntro()
-    if menuScaleDone == true then
-        drawButton()
+    if menuTimer >= 2 then
+        --drawButton()
     end
     --Engine.draw()
 end

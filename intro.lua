@@ -9,9 +9,10 @@ local introSound2Played = false
 local introExit = false
 local introToMenu = false
 local zoomScale = 1
+local zoomMaxScale = 50
+local zoomSpeed = 0.01
 local zoomTranslateX = 0
 local zoomTranslateY = 0
-local zoomTimer = 0
 
 
 local function loadAssets()
@@ -161,7 +162,19 @@ local function updateZoomExit(dt)
     zoomScale = zoomScale * (1 + 1.5 * dt)
     zoomTranslateX = love.graphics.getWidth() / 2 - love.graphics.getWidth() / 2 * zoomScale
     zoomTranslateY = love.graphics.getHeight() / 2 - love.graphics.getHeight() / 2 * zoomScale
-    zoomTimer = zoomTimer + dt
+end
+
+local function updateZoomExit2(dt)
+    zoomScale = 16 - (16 - zoomScale) * math.exp(0.1, dt)
+    zoomTranslateX = love.graphics.getWidth() / 2 - love.graphics.getWidth() / 2 * zoomScale
+    zoomTranslateY = love.graphics.getHeight() / 2 - love.graphics.getHeight() / 2 * zoomScale
+end
+
+local function updateZoomExit3(dt)
+    local zoomDelta = zoomMaxScale - zoomScale
+    zoomScale = zoomScale + zoomDelta * (1 - math.exp(-zoomSpeed * zoomDelta * dt))
+    zoomTranslateX = love.graphics.getWidth() / 2 - love.graphics.getWidth() / 2 * zoomScale
+    zoomTranslateY = love.graphics.getHeight() / 2 - love.graphics.getHeight() / 2 * zoomScale
 end
 
 intro.update = function(dt)
