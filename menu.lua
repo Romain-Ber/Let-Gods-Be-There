@@ -7,6 +7,7 @@ local menuTimer = 0
 local zoomTranslateX = 0
 local zoomTranslateY = 0
 local menuLoaded = false
+local buttonTimer = 0
 local slideOffsetVector1 = 0
 local slideOffsetVector2 = 1
 
@@ -44,7 +45,6 @@ local function loadAssets()
     }
     menuContinue.button.w = menuContinue.button.image:getWidth()
     menuContinue.button.h = menuContinue.button.image:getHeight()
-    menuContinue.button.y = maxResolution.h / 9
     menuContinue.text.w = menuContinue.text.image:getWidth()
     menuContinue.text.h = menuContinue.text.image:getHeight()
     menuNewgame = {
@@ -121,8 +121,15 @@ local function loadAssets()
     menuSettings.text.h = menuSettings.text.image:getHeight()
 end
 
+local function loadInitialPositions()
+    menuContinue.button.x = -menuContinue.button.w
+    menuContinue.button.y = maxResolution.h / 9
+    menuContinue.speed = 0
+end
+
 menu.load = function()
     loadAssets()
+    loadInitialPositions()
     Engine.load()
 end
 
@@ -142,10 +149,15 @@ local function updateAlphaEnter(dt)
 end
 
 local function buttonSlideLeft(dt)
-    slideOffsetVector1 = 1 + (slideOffsetVector1 - 1) * math.pow(0.1, dt)
-    print(slideOffsetVector1)
-    slideOffsetVector2 = 1 + (slideOffsetVector2 - 1) * math.pow(0.1, dt)
-    print(slideOffsetVector2)
+    local startValue = -menuContinue.button.w
+    local endValue = maxResolution.w/2 - menuContinue.button.w/2
+    local midValue = (startValue + endValue) / 2
+    if menuContinue.button.x >= midValue and menuContinue.button.x <= endValue then
+        menuContinue.button.x = math.abs(midValue) + (menuContinue.button.x - math.abs(midValue)) * math.pow(0.1, dt)
+    else
+        menuContinue.button.x = startValue + (menuContinue.button.x + math.abs(startValue)) / math.pow(0.1, dt)
+    end
+    print(startValue, midValue, endValue, menuContinue.button.x)
 end
 
 local function buttonSlideRight(dt)
@@ -157,6 +169,7 @@ menu.update = function(dt)
     updateZoomEnter(dt)
     updateAlphaEnter(dt)
     if menuTimer >= 2 then
+        buttonTimer = buttonTimer + dt
         buttonSlideLeft(dt)
         buttonSlideRight(dt)
     end
@@ -181,7 +194,7 @@ end
 menu.draw = function()
     drawMenuIntro()
     if menuTimer >= 2 then
-        --drawButton()
+        drawButton()
     end
     --Engine.draw()
 end
