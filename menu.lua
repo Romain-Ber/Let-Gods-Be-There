@@ -3,13 +3,9 @@ local menu = {}
 local Engine = require("engine")
 
 local menuTimer = 0
-
 local zoomTranslateX = 0
 local zoomTranslateY = 0
 local menuLoaded = false
-local buttonTimer = 0
-local slideOffsetVector1 = 0
-local slideOffsetVector2 = 1
 
 local function loadAssets()
     menuIntroSound = love.audio.newSource("menu/menuIntroSound.mp3", "stream")
@@ -17,166 +13,136 @@ local function loadAssets()
     menuBackground = {
         image = love.graphics.newImage("menu/menuBackground2.png"),
         scale = 25,
-        alpha = 0.01,
-        alphaMax = 0.5,
-        alphaDone = false
     }
     menuBackground.w = menuBackground.image:getWidth()
     menuBackground.h = menuBackground.image:getHeight()
     menuContinue = {
         button = {
             image = love.graphics.newImage("menu/continueButton.png"),
-            x = 0,
-            y = 0,
-            scale = 1,
-            alpha = 1,
-            alphaSpeed = 1,
-            start = 1
         },
         text = {
             image = love.graphics.newImage("menu/continueText.png"),
-            x = 0,
-            y = 0,
-            scale = 1,
-            alpha = 1,
-            alphaSpeed = 1,
-            start = 1
         }
     }
-    menuContinue.button.w = menuContinue.button.image:getWidth()
-    menuContinue.button.h = menuContinue.button.image:getHeight()
-    menuContinue.text.w = menuContinue.text.image:getWidth()
-    menuContinue.text.h = menuContinue.text.image:getHeight()
     menuNewgame = {
         button = {
             image = love.graphics.newImage("menu/newgameButton.png"),
-            x = 0,
-            y = 0,
-            scale = 1,
-            alpha = 1,
-            alphaSpeed = 1,
-            start = 1
         },
         text = {
             image = love.graphics.newImage("menu/newgameText.png"),
-            x = 0,
-            y = 0,
-            scale = 1,
-            alpha = 1,
-            alphaSpeed = 1,
-            start = 1
-       }
+        }
     }
-    menuNewgame.button.w = menuNewgame.button.image:getWidth()
-    menuNewgame.button.h = menuNewgame.button.image:getHeight()
-    menuNewgame.text.w = menuNewgame.text.image:getWidth()
-    menuNewgame.text.h = menuNewgame.text.image:getHeight()
     menuLoadgame = {
         button = {
             image = love.graphics.newImage("menu/loadgameButton.png"),
-            x = 0,
-            y = 0,
-            scale = 1,
-            alpha = 1,
-            alphaSpeed = 1,
-            start = 1
         },
         text = {
             image = love.graphics.newImage("menu/loadgameText.png"),
-            x = 0,
-            y = 0,
-            scale = 1,
-            alpha = 1,
-            alphaSpeed = 1,
-            start = 1
         }
     }
-    menuLoadgame.button.w = menuLoadgame.button.image:getWidth()
-    menuLoadgame.button.h = menuLoadgame.button.image:getHeight()
-    menuLoadgame.text.w = menuLoadgame.text.image:getWidth()
-    menuLoadgame.text.h = menuLoadgame.text.image:getHeight()
     menuSettings = {
         button = {
             image = love.graphics.newImage("menu/settingsButton.png"),
-            x = 0,
-            y = 0,
-            scale = 1,
-            alpha = 1,
-            alphaSpeed = 1,
-            start = 1
         },
         text = {
             image = love.graphics.newImage("menu/settingsText.png"),
-            x = 0,
-            y = 0,
-            scale = 1,
-            alpha = 1,
-            alphaSpeed = 1,
-            start = 1
         }
     }
-    menuSettings.button.w = menuSettings.button.image:getWidth()
-    menuSettings.button.h = menuSettings.button.image:getHeight()
-    menuSettings.text.w = menuSettings.text.image:getWidth()
-    menuSettings.text.h = menuSettings.text.image:getHeight()
 end
 
-local function loadInitialPositions()
-    menuContinue.button.x = -menuContinue.button.w
-    menuContinue.button.y = maxResolution.h / 9
-    menuContinue.speed = 0
+local function initializePosition(object, y)
+    object.button.scale = 0.5
+    object.button.w = object.button.image:getWidth()
+    object.button.h = object.button.image:getHeight()
+    object.button.x = -(object.button.w * object.button.scale)
+    object.button.y = y
+    object.text.scale = 0.5
+    object.text.w = object.text.image:getWidth()
+    object.text.h = object.text.image:getHeight()
+    object.text.x = -(object.text.w * object.text.scale)
+    object.text.y = y
+end
+
+local function initializeAlpha(object, alphaStart, alphaMax)
+    object.alpha = alphaStart
+    object.alphaMax = alphaMax
 end
 
 menu.load = function()
     loadAssets()
-    loadInitialPositions()
+    initializeAlpha(menuBackground, 0.01, 0.5)
+    initializeAlpha(menuContinue, 0.01, 1)
+    initializePosition(menuContinue, maxResolution.h/9)
+    initializeAlpha(menuNewgame, 0.01, 1)
+    initializePosition(menuNewgame, maxResolution.h/9 * 3)
+    initializeAlpha(menuLoadgame, 0.01, 1)
+    initializePosition(menuLoadgame, maxResolution.h/9 * 5)
+    initializeAlpha(menuSettings, 0.01, 1)
+    initializePosition(menuSettings, maxResolution.h/9 * 7)
     Engine.load()
 end
 
 
-local function updateZoomEnter(dt)
-    menuBackground.scale = 1 + (menuBackground.scale - 1) * math.pow(0.1, dt)
-    zoomTranslateX = love.graphics.getWidth() / 2 - love.graphics.getWidth() / 2 * menuBackground.scale
-    zoomTranslateY = love.graphics.getHeight() / 2 - love.graphics.getHeight() / 2 * menuBackground.scale
+local function updateZoomEnter(dt, object)
+    object.scale = 1 + (object.scale - 1) * math.pow(0.1, dt)
+    zoomTranslateX = love.graphics.getWidth() / 2 - love.graphics.getWidth() / 2 * object.scale
+    zoomTranslateY = love.graphics.getHeight() / 2 - love.graphics.getHeight() / 2 * object.scale
 end
 
-local function updateAlphaEnter(dt)
-    menuBackground.alpha = menuBackground.alpha + menuBackground.alpha * 1 * dt
-    if menuBackground.alpha >= menuBackground.alphaMax then
-        menuBackground.alpha = menuBackground.alphaMax
-        menuBackground.alphaDone = true
+local function updateAlphaEnter(dt, object)
+    object.alpha = object.alpha + 0.25 * dt
+    if object.alpha >= object.alphaMax then
+        object.alpha = object.alphaMax
     end
 end
 
-local function buttonSlideLeft(dt)
-    local startValue = -menuContinue.button.w
-    local endValue = maxResolution.w/2 - menuContinue.button.w/2
+local function buttonSlideLeft(dt, object)
+    local startValue = -(object.button.w * object.button.scale)
+    local endValue = maxResolution.w/2 - (object.button.w*object.button.scale)/2
     local midValue = (startValue + endValue) / 2
-    if menuContinue.button.x >= midValue and menuContinue.button.x <= endValue then
-        menuContinue.button.x = math.abs(midValue) + (menuContinue.button.x - math.abs(midValue)) * math.pow(0.1, dt)
-    else
-        menuContinue.button.x = startValue + (menuContinue.button.x + math.abs(startValue)) / math.pow(0.1, dt)
+    if object.button.x == startValue then
+        object.button.x = startValue + (object.button.x + math.abs(startValue) + 1) / math.pow(0.1, dt)
+    elseif  object.button.x > startValue and  object.button.x <= midValue then
+        object.button.x = startValue + (object.button.x + math.abs(startValue)) / math.pow(0.1, dt)
+    elseif object.button.x > midValue and object.button.x <= endValue then
+        object.button.x = math.abs(endValue) + (object.button.x - math.abs(endValue)) * math.pow(0.1, dt)
     end
-    print(startValue, midValue, endValue, menuContinue.button.x)
 end
 
-local function buttonSlideRight(dt)
+local function buttonSlideRight(dt, object)
 
+end
+
+local function buttonStart(time, object)
+    if time > object.start then
+        
+    end
 end
 
 menu.update = function(dt)
     menuTimer = menuTimer + dt
-    updateZoomEnter(dt)
-    updateAlphaEnter(dt)
-    if menuTimer >= 2 then
-        buttonTimer = buttonTimer + dt
-        buttonSlideLeft(dt)
-        buttonSlideRight(dt)
+    updateZoomEnter(dt, menuBackground)
+    updateAlphaEnter(dt, menuBackground)
+    if menuTimer >= 0.5 then
+        updateAlphaEnter(dt, menuContinue)
+        buttonSlideLeft(dt, menuContinue)
+    end
+    if menuTimer >= 0.75 then
+        updateAlphaEnter(dt, menuNewgame)
+        buttonSlideRight(dt, menuNewgame)
+    end
+    if menuTimer >= 1 then
+        updateAlphaEnter(dt, menuLoadgame)
+        buttonSlideLeft(dt, menuLoadgame)
+    end
+    if menuTimer >= 1.25 then
+        updateAlphaEnter(dt, menuSettings)
+        buttonSlideRight(dt, menuSettings)
     end
     --Engine.update(dt)
 end
 
-local function drawMenuIntro()
+local function drawBackground()
     love.graphics.push()
     love.graphics.translate(zoomTranslateX, zoomTranslateY)
     love.graphics.scale(menuBackground.scale)
@@ -185,17 +151,18 @@ local function drawMenuIntro()
     love.graphics.pop()
 end
 
-local function drawButton()
+local function drawButton(object)
     love.graphics.scale(1)
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(menuContinue.button.image, menuContinue.button.x, menuContinue.button.y, 0, 1, 1)
+    love.graphics.setColor(1, 1, 1, object.alpha)
+    love.graphics.draw(object.button.image, object.button.x, object.button.y, 0, object.button.scale, object.button.scale)
 end
 
 menu.draw = function()
-    drawMenuIntro()
-    if menuTimer >= 2 then
-        drawButton()
-    end
+    drawBackground()
+    drawButton(menuContinue)
+    drawButton(menuNewgame)
+    drawButton(menuLoadgame)
+    drawButton(menuSettings)
     --Engine.draw()
 end
 
