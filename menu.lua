@@ -17,6 +17,7 @@ local function loadAssets()
     menuBackground.w = menuBackground.image:getWidth()
     menuBackground.h = menuBackground.image:getHeight()
     menuContinue = {
+        name = "Continue",
         button = {
             image = love.graphics.newImage("menu/continueButton.png"),
         },
@@ -25,6 +26,7 @@ local function loadAssets()
         }
     }
     menuNewgame = {
+        name = "Newgame",
         button = {
             image = love.graphics.newImage("menu/newgameButton.png"),
         },
@@ -33,6 +35,7 @@ local function loadAssets()
         }
     }
     menuLoadgame = {
+        name = "Loadgame",
         button = {
             image = love.graphics.newImage("menu/loadgameButton.png"),
         },
@@ -41,6 +44,7 @@ local function loadAssets()
         }
     }
     menuSettings = {
+        name = "Settings",
         button = {
             image = love.graphics.newImage("menu/settingsButton.png"),
         },
@@ -52,15 +56,20 @@ end
 
 local function initializePosition(object, y)
     object.button.scale = 0.5
+    object.text.scale = 0.5
     object.button.w = object.button.image:getWidth()
     object.button.h = object.button.image:getHeight()
-    object.button.x = -(object.button.w * object.button.scale)
-    object.button.y = y
-    object.text.scale = 0.5
     object.text.w = object.text.image:getWidth()
     object.text.h = object.text.image:getHeight()
-    object.text.x = -(object.text.w * object.text.scale)
+    object.button.y = y
     object.text.y = y
+    if object.name == "Continue" or object.name == "Loadgame" then
+        object.button.x = -(object.button.w * object.button.scale)
+        object.text.x = -(object.text.w * object.text.scale)
+    elseif object.name == "Newgame" or object.name == "Settings" then
+        object.button.x = maxResolution.w
+        object.text.x = maxResolution.w
+    end
 end
 
 local function initializeAlpha(object, alphaStart, alphaMax)
@@ -70,14 +79,14 @@ end
 
 menu.load = function()
     loadAssets()
-    initializeAlpha(menuBackground, 0.01, 0.5)
-    initializeAlpha(menuContinue, 0.01, 1)
+    initializeAlpha(menuBackground, 0, 0.5)
+    initializeAlpha(menuContinue, 0, 1)
     initializePosition(menuContinue, maxResolution.h/9)
-    initializeAlpha(menuNewgame, 0.01, 1)
+    initializeAlpha(menuNewgame, 0, 1)
     initializePosition(menuNewgame, maxResolution.h/9 * 3)
-    initializeAlpha(menuLoadgame, 0.01, 1)
+    initializeAlpha(menuLoadgame, 0, 1)
     initializePosition(menuLoadgame, maxResolution.h/9 * 5)
-    initializeAlpha(menuSettings, 0.01, 1)
+    initializeAlpha(menuSettings, 0, 1)
     initializePosition(menuSettings, maxResolution.h/9 * 7)
     Engine.load()
 end
@@ -96,26 +105,29 @@ local function updateAlphaEnter(dt, object)
     end
 end
 
-local function buttonSlideLeft(dt, object)
-    local startValue = -(object.button.w * object.button.scale)
-    local endValue = maxResolution.w/2 - (object.button.w*object.button.scale)/2
-    local midValue = (startValue + endValue) / 2
-    if object.button.x == startValue then
-        object.button.x = startValue + (object.button.x + math.abs(startValue) + 1) / math.pow(0.1, dt)
-    elseif  object.button.x > startValue and  object.button.x <= midValue then
-        object.button.x = startValue + (object.button.x + math.abs(startValue)) / math.pow(0.1, dt)
-    elseif object.button.x > midValue and object.button.x <= endValue then
-        object.button.x = math.abs(endValue) + (object.button.x - math.abs(endValue)) * math.pow(0.1, dt)
-    end
-end
-
-local function buttonSlideRight(dt, object)
-
-end
-
-local function buttonStart(time, object)
-    if time > object.start then
-        
+local function buttonSlide(dt, object)
+    if object.name == "Continue" or object.name == "Loadgame" then
+        local startValue = -(object.button.w * object.button.scale)
+        local endValue = maxResolution.w/2 - (object.button.w*object.button.scale)/2
+        local midValue = (startValue + endValue) / 2
+        if object.button.x == startValue then
+            object.button.x = startValue + (object.button.x + math.abs(startValue) + 1) / math.pow(0.1, dt)
+        elseif  object.button.x > startValue and  object.button.x <= midValue then
+            object.button.x = startValue + (object.button.x + math.abs(startValue)) / math.pow(0.1, dt)
+        elseif object.button.x > midValue and object.button.x <= endValue then
+            object.button.x = math.abs(endValue) + (object.button.x - math.abs(endValue)) * math.pow(0.1, dt)
+        end
+    elseif object.name == "Newgame" or object.name == "Settings" then
+        local startValue = maxResolution.w
+        local endValue = maxResolution.w/2 - (object.button.w*object.button.scale)/2
+        local midValue = (startValue + endValue) / 2
+        if object.button.x == startValue then
+            object.button.x = startValue - (math.abs(startValue) - object.button.x + 1) / math.pow(0.1, dt)
+        elseif  object.button.x < startValue and  object.button.x >= midValue then
+            object.button.x = startValue - (math.abs(startValue) - object.button.x) / math.pow(0.1, dt)
+        elseif object.button.x < midValue and object.button.x >= endValue then
+            object.button.x = math.abs(endValue) - (math.abs(endValue) - object.button.x) * math.pow(0.1, dt)
+        end
     end
 end
 
@@ -125,19 +137,20 @@ menu.update = function(dt)
     updateAlphaEnter(dt, menuBackground)
     if menuTimer >= 0.5 then
         updateAlphaEnter(dt, menuContinue)
-        buttonSlideLeft(dt, menuContinue)
+        buttonSlide(dt, menuContinue)
     end
     if menuTimer >= 0.75 then
         updateAlphaEnter(dt, menuNewgame)
-        buttonSlideRight(dt, menuNewgame)
+        buttonSlide(dt, menuNewgame)
     end
     if menuTimer >= 1 then
         updateAlphaEnter(dt, menuLoadgame)
-        buttonSlideLeft(dt, menuLoadgame)
+        buttonSlide(dt, menuLoadgame)
     end
     if menuTimer >= 1.25 then
         updateAlphaEnter(dt, menuSettings)
-        buttonSlideRight(dt, menuSettings)
+        buttonSlide(dt, menuSettings)
+        
     end
     --Engine.update(dt)
 end
