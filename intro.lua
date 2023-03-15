@@ -273,4 +273,8 @@ intro.keypressed = function(key)
     end
 end
 
+intro.mousepressed = function(x, y)
+    Menu.mousepressed(x, y)
+end
+
 return intro

@@ -24,6 +24,6 @@ function love.keypressed(key)
     Intro.keypressed(key)
 end
 
-function love.mousepressed(x, y, key)
-
+function love.mousepressed(x, y)
+    Intro.mousepressed(x, y)
 end
