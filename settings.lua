@@ -4,6 +4,7 @@ fullscreen = false
 gameResolution = {w=800, h=600, scale=1, offsetX=0, offsetY=0}
 maxResolution = {w=0, h=0}
 
+
 local function calculateMaxResolution()
     love.window.setFullscreen(true)
     maxResolution.w, maxResolution.h = love.window.getMode()
