@@ -12,6 +12,7 @@ local loadgameSelection = false
 local settingsSelection = false
 local quitMenu = false
 
+
 local function loadAssets()
     menuIntroSound = love.audio.newSource("menu/menuIntroSound.mp3", "stream")
     menuIntroSound:setVolume(4)
